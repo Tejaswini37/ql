@@ -1,8 +1,10 @@
 import { useState } from "react";
 
+const BASE_URL = "https://quicklink-backend-ih4p.onrender.com";
+
 function App() {
   const [url, setUrl] = useState("");
-  const [shortUrl, setShortUrl] = useState("");
+  const [shortCode, setShortCode] = useState("");
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -18,8 +20,7 @@ function App() {
     setLoading(true);
 
     try {
-      // const response = await fetch("http://localhost:8080/shorten", {
-      const response = await fetch("https://quicklink-backend-ih4p.onrender.com/shorten", {
+      const response = await fetch(`${BASE_URL}/shorten`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -29,11 +30,9 @@ function App() {
 
       if (!response.ok) throw new Error();
 
-      const data = await response.text();
+      const data = await response.text(); // only short code
 
-      // setShortUrl(data);
-      setShortUrl("https://quicklink-backend-ih4p.onrender.com/" + data);
-
+      setShortCode(data);
 
       setHistory((prev) => {
         const updated = [{ original: url, short: data }, ...prev];
@@ -83,51 +82,69 @@ function App() {
 
         {error && <p style={styles.error}>{error}</p>}
 
-        {shortUrl && (
+        {/* Main Result */}
+        {shortCode && (
           <div style={styles.resultBox}>
             <p>Your Short URL:</p>
             <div style={styles.copyRow}>
-              {/* <a href={shortUrl} target="_blank" rel="noreferrer" style={styles.link}>
-                {shortUrl}
-              </a> */}
-            <a
-  href={`https://quicklink-backend-ih4p.onrender.com/${item.short}`}
-  target="_blank"
-  rel="noreferrer"
-  style={styles.link}
->
-  {`https://quicklink-backend-ih4p.onrender.com/${item.short}`}
-</a>
+              {(() => {
+                const fullUrl = `${BASE_URL}/${shortCode}`;
+                return (
+                  <>
+                    <a
+                      href={fullUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={styles.link}
+                    >
+                      {fullUrl}
+                    </a>
 
-              <button
-                style={styles.copyBtn}
-                onClick={() => copyToClipboard(shortUrl, "main")}
-              >
-                {copiedIndex === "main" ? "Copied ✓" : "Copy"}
-              </button>
+                    <button
+                      style={styles.copyBtn}
+                      onClick={() => copyToClipboard(fullUrl, "main")}
+                    >
+                      {copiedIndex === "main" ? "Copied ✓" : "Copy"}
+                    </button>
+                  </>
+                );
+              })()}
             </div>
           </div>
         )}
 
+        {/* History */}
         {history.length > 0 && (
           <div style={styles.historySection}>
             <h3>Recent Links</h3>
-            {history.map((item, index) => (
-              <div key={index} style={styles.historyItem}>
-                <small style={{ color: "#555" }}>{item.original}</small>
-                <div style={styles.copyRow}>
-                  <a href={item.short} target="_blank" rel="noreferrer" style={styles.link}>
-                    {item.short}
-                  </a>
-                  <button
-                    style={styles.copyBtn}
-                    onClick={() => copyToClipboard(item.short, index)}
-                  >
-                    {copiedIndex === index ? "Copied ✓" : "Copy"}
-                  </button>
+
+            {history.map((item, index) => {
+              const fullUrl = `${BASE_URL}/${item.short}`;
+
+              return (
+                <div key={index} style={styles.historyItem}>
+                  <small style={{ color: "#555" }}>{item.original}</small>
+
+                  <div style={styles.copyRow}>
+                    <a
+                      href={fullUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={styles.link}
+                    >
+                      {fullUrl}
+                    </a>
+
+                    <button
+                      style={styles.copyBtn}
+                      onClick={() => copyToClipboard(fullUrl, index)}
+                    >
+                      {copiedIndex === index ? "Copied ✓" : "Copy"}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
