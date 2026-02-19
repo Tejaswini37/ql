@@ -87,9 +87,18 @@ function App() {
           <div style={styles.resultBox}>
             <p>Your Short URL:</p>
             <div style={styles.copyRow}>
-              <a href={shortUrl} target="_blank" rel="noreferrer" style={styles.link}>
+              {/* <a href={shortUrl} target="_blank" rel="noreferrer" style={styles.link}>
                 {shortUrl}
-              </a>
+              </a> */}
+            <a
+  href={`https://quicklink-backend-ih4p.onrender.com/${item.short}`}
+  target="_blank"
+  rel="noreferrer"
+  style={styles.link}
+>
+  {`https://quicklink-backend-ih4p.onrender.com/${item.short}`}
+</a>
+
               <button
                 style={styles.copyBtn}
                 onClick={() => copyToClipboard(shortUrl, "main")}
